@@ -1,0 +1,214 @@
+# Banju CLI Tool
+
+A versatile command-line tool built with BASH for project management and automation.
+
+## Features
+
+- 🚀 Initialize new projects with a standard structure
+- 📊 Check system and project status
+- ⚙️ Run common tasks (build, test, clean)
+- 🔪 Kill processes running on specific ports
+- 🔍 List all ports currently in use
+- 🎨 Colorful and user-friendly output
+- 📝 Easy to extend and customize
+
+## Installation
+
+### Quick Install (Local User)
+
+1. Clone or download this repository
+2. Make the script executable:
+   ```bash
+   chmod +x banju
+   ```
+3. Add to your PATH (choose one):
+   
+   **Option A: Copy to local bin directory**
+   ```bash
+   mkdir -p ~/.local/bin
+   cp banju ~/.local/bin/
+   ```
+   
+   **Option B: Create a symlink**
+   ```bash
+   mkdir -p ~/.local/bin
+   ln -s "$(pwd)/banju" ~/.local/bin/banju
+   ```
+
+4. Ensure `~/.local/bin` is in your PATH:
+   ```bash
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+   source ~/.bashrc
+   ```
+
+### System-wide Install (Requires sudo)
+
+```bash
+sudo cp banju /usr/local/bin/
+sudo chmod +x /usr/local/bin/banju
+```
+
+## Usage
+
+### Basic Commands
+
+```bash
+# Show help
+banju help
+
+# Show version
+banju version
+
+# Initialize a new project
+banju init my-project
+
+# Show current status
+banju status
+
+# Run a task
+banju run build
+banju run test
+banju run clean
+
+# Show configuration
+banju config
+
+# List available items
+banju list
+```
+
+### Examples
+
+```bash
+# Create a new project called "awesome-app"
+banju init awesome-app
+
+# Check the status of your environment
+banju status
+
+# Run the build task
+banju run build
+
+# List all ports in use
+banju list-ports
+
+# Kill all processes on port 3000
+banju kill-port 3000
+
+# Kill processes on port 8080
+banju kill-port 8080
+```
+
+### Port Management
+
+The `kill-port` command is particularly useful for developers who need to free up ports:
+
+```bash
+# Check what's running on your ports
+banju list-ports
+
+# Kill a process stuck on port 3000 (common for React/Node.js)
+banju kill-port 3000
+
+# Kill a process on port 8080 (common for Java/Spring apps)
+banju kill-port 8080
+
+# Kill a process on port 5000 (common for Flask/Python apps)
+banju kill-port 5000
+```
+
+**Features:**
+- Validates port numbers (1-65535)
+- Shows process details before killing
+- Asks for confirmation before killing
+- Attempts graceful kill first, then force kill if needed
+- Works with multiple tools: `lsof`, `ss`, `netstat`, `fuser`
+- Handles permission issues gracefully
+```
+
+## Customization
+
+The `banju` script is designed to be easily customizable. You can:
+
+1. **Add new commands**: Add new case statements in the `main()` function
+2. **Add new tasks**: Extend the `run_task()` function with your own tasks
+3. **Modify colors**: Change the color variables at the top of the script
+4. **Add configuration**: Implement a config file reader (`.banjurc`)
+
+### Example: Adding a Custom Command
+
+Edit the `banju` script and add a new case in the `main()` function:
+
+```bash
+custom)
+    echo "Running custom command!"
+    # Your custom logic here
+    ;;
+```
+
+## Development
+
+### Project Structure
+
+```
+banju/
+├── banju           # Main executable script
+├── README.md       # This file
+├── LICENSE         # License file
+└── CHANGELOG.md    # Version history
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Requirements
+
+- Bash 4.0 or higher
+- Linux, macOS, or WSL on Windows
+- Standard Unix utilities (mkdir, touch, date, etc.)
+- For port management: `lsof`, `ss`, `netstat`, or `fuser` (at least one)
+
+## License
+
+MIT License - feel free to use and modify as needed.
+
+## Troubleshooting
+
+### Command not found
+
+Make sure the script is executable and in your PATH:
+```bash
+chmod +x banju
+which banju  # Should show the path to banju
+```
+
+### Permission denied
+
+Make the script executable:
+```bash
+chmod +x banju
+```
+
+## Roadmap
+
+- [ ] Add configuration file support (~/.banjurc)
+- [ ] Add plugin system
+- [ ] Add auto-completion for bash/zsh
+- [ ] Add more built-in tasks
+- [ ] Add logging functionality
+- [ ] Add interactive mode
+
+## Support
+
+For issues, questions, or contributions, please visit:
+- GitHub Issues: https://github.com/yourusername/banju/issues
+- Documentation: https://github.com/yourusername/banju/wiki
+
+---
+
+Made with ❤️ using BASH

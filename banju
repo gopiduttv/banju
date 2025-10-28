@@ -1,0 +1,359 @@
+#!/usr/bin/env bash
+
+# banju - A CLI tool
+# Version: 1.0.0
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Script name and version
+SCRIPT_NAME="banju"
+VERSION="1.0.0"
+
+# Function to display banner
+show_banner() {
+    cat << 'EOF'
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  ██████╗  █████╗ ███╗   ██╗     ██╗██╗   ██╗                       ║
+║  ██╔══██╗██╔══██╗████╗  ██║     ██║██║   ██║                       ║
+║  ██████╔╝███████║██╔██╗ ██║     ██║██║   ██║                       ║
+║  ██╔══██╗██╔══██║██║╚██╗██║██   ██║██║   ██║                       ║
+║  ██████╔╝██║  ██║██║ ╚████║╚█████╔╝╚██████╔╝                       ║
+║  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚════╝  ╚═════╝                        ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+EOF
+    echo -e "${GREEN}                    🚀 Version ${VERSION} 🚀${NC}"
+    echo -e "${BLUE}           The Ultimate Developer's CLI Toolkit${NC}\n"
+}
+
+# Function to display help
+show_help() {
+    show_banner
+    cat << EOF
+${YELLOW}USAGE:${NC}
+    ${SCRIPT_NAME} [COMMAND] [OPTIONS]
+
+${YELLOW}USAGE:${NC}
+    ${SCRIPT_NAME} [COMMAND] [OPTIONS]
+
+${YELLOW}COMMANDS:${NC}
+    help                Show this help message
+    version             Show version information
+    init [name]         Initialize a new project
+    status              Show current status
+    run [task]          Run a specific task
+    config              Show configuration
+    list                List available items
+    kill-port [port]    Kill all processes running on specified port
+    list-ports          List all ports currently in use
+
+${YELLOW}OPTIONS:${NC}
+    -h, --help          Show help message
+    -v, --version       Show version
+    -V, --verbose       Enable verbose output
+
+${YELLOW}EXAMPLES:${NC}
+    ${SCRIPT_NAME} init my-project
+    ${SCRIPT_NAME} status
+    ${SCRIPT_NAME} run build
+    ${SCRIPT_NAME} list
+    ${SCRIPT_NAME} kill-port 3000
+    ${SCRIPT_NAME} list-ports
+
+For more information, visit: https://github.com/yourusername/banju
+EOF
+}
+
+# Function to display version
+show_version() {
+    show_banner
+    echo -e "Build date: 2025-10-28"
+    echo -e "Shell: BASH"
+}
+
+# Function to initialize a project
+init_project() {
+    local project_name="${1:-my-project}"
+    echo -e "${BLUE}Initializing project: ${project_name}${NC}"
+    
+    if [ -d "$project_name" ]; then
+        echo -e "${RED}Error: Directory '${project_name}' already exists${NC}"
+        return 1
+    fi
+    
+    mkdir -p "$project_name"
+    cd "$project_name"
+    
+    # Create basic project structure
+    mkdir -p src tests docs
+    touch README.md
+    
+    cat > README.md << 'EOL'
+# Project Name
+
+Created with banju CLI tool
+
+## Getting Started
+
+Add your project documentation here.
+EOL
+    
+    echo -e "${GREEN}✓ Project '${project_name}' initialized successfully!${NC}"
+    echo -e "  Created directories: src/, tests/, docs/"
+    echo -e "  Created files: README.md"
+}
+
+# Function to show status
+show_status() {
+    echo -e "${BLUE}Status:${NC}"
+    echo -e "  Working directory: ${PWD}"
+    echo -e "  User: ${USER}"
+    echo -e "  Date: $(date)"
+    echo -e "  ${SCRIPT_NAME} version: ${VERSION}"
+}
+
+# Function to run a task
+run_task() {
+    local task="${1:-}"
+    
+    if [ -z "$task" ]; then
+        echo -e "${RED}Error: No task specified${NC}"
+        echo -e "Usage: ${SCRIPT_NAME} run [task]"
+        return 1
+    fi
+    
+    echo -e "${BLUE}Running task: ${task}${NC}"
+    
+    case "$task" in
+        build)
+            echo -e "${GREEN}Building project...${NC}"
+            # Add your build logic here
+            echo -e "${GREEN}✓ Build completed${NC}"
+            ;;
+        test)
+            echo -e "${GREEN}Running tests...${NC}"
+            # Add your test logic here
+            echo -e "${GREEN}✓ Tests passed${NC}"
+            ;;
+        clean)
+            echo -e "${YELLOW}Cleaning project...${NC}"
+            # Add your clean logic here
+            echo -e "${GREEN}✓ Clean completed${NC}"
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown task '${task}'${NC}"
+            echo -e "Available tasks: build, test, clean"
+            return 1
+            ;;
+    esac
+}
+
+# Function to show configuration
+show_config() {
+    echo -e "${BLUE}Configuration:${NC}"
+    echo -e "  Config file: ~/.banjurc (not implemented yet)"
+    echo -e "  Cache dir: ~/.cache/banju"
+    echo -e "  Log level: INFO"
+}
+
+# Function to list items
+list_items() {
+    echo -e "${BLUE}Available items:${NC}"
+    echo -e "  • Example item 1"
+    echo -e "  • Example item 2"
+    echo -e "  • Example item 3"
+    echo -e "\n${YELLOW}Note: This is a placeholder. Customize as needed.${NC}"
+}
+
+# Function to kill processes on a specific port
+kill_port() {
+    local port="${1:-}"
+    
+    if [ -z "$port" ]; then
+        echo -e "${RED}Error: No port specified${NC}"
+        echo -e "Usage: ${SCRIPT_NAME} kill-port [port]"
+        return 1
+    fi
+    
+    # Validate port number
+    if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
+        echo -e "${RED}Error: Invalid port number '${port}'${NC}"
+        echo -e "Port must be between 1 and 65535"
+        return 1
+    fi
+    
+    echo -e "${BLUE}Searching for processes on port ${port}...${NC}"
+    
+    # Find PIDs using the port (works with both TCP and UDP)
+    local pids=()
+    
+    # Try lsof first (more reliable if available)
+    if command -v lsof &> /dev/null; then
+        pids=($(lsof -ti tcp:${port} 2>/dev/null))
+    fi
+    
+    # If lsof didn't find anything or isn't available, try netstat/ss
+    if [ ${#pids[@]} -eq 0 ]; then
+        if command -v ss &> /dev/null; then
+            pids=($(ss -lptn "sport = :${port}" 2>/dev/null | grep -oP 'pid=\K[0-9]+' | sort -u))
+        elif command -v netstat &> /dev/null; then
+            pids=($(netstat -tlnp 2>/dev/null | grep ":${port} " | awk '{print $7}' | cut -d'/' -f1 | grep -E '^[0-9]+$'))
+        fi
+    fi
+    
+    # If still no PIDs found, try fuser as last resort
+    if [ ${#pids[@]} -eq 0 ] && command -v fuser &> /dev/null; then
+        pids=($(fuser ${port}/tcp 2>/dev/null))
+    fi
+    
+    if [ ${#pids[@]} -eq 0 ]; then
+        echo -e "${YELLOW}No processes found running on port ${port}${NC}"
+        return 0
+    fi
+    
+    echo -e "${YELLOW}Found ${#pids[@]} process(es) on port ${port}:${NC}"
+    
+    # Show process details before killing
+    for pid in "${pids[@]}"; do
+        if [ -n "$pid" ] && ps -p "$pid" &> /dev/null; then
+            local proc_info=$(ps -p "$pid" -o pid=,user=,comm= 2>/dev/null)
+            echo -e "  ${BLUE}PID: ${pid}${NC} - ${proc_info}"
+        fi
+    done
+    
+    # Ask for confirmation (can be skipped with -f flag in future)
+    echo -e "\n${YELLOW}Kill these processes? (y/N):${NC} "
+    read -r confirmation
+    
+    if [[ ! "$confirmation" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Aborted${NC}"
+        return 0
+    fi
+    
+    # Kill the processes
+    local killed_count=0
+    local failed_count=0
+    
+    for pid in "${pids[@]}"; do
+        if [ -n "$pid" ] && ps -p "$pid" &> /dev/null; then
+            if kill "$pid" 2>/dev/null; then
+                echo -e "${GREEN}✓ Killed process ${pid}${NC}"
+                ((killed_count++))
+                
+                # Wait a moment and force kill if still running
+                sleep 0.5
+                if ps -p "$pid" &> /dev/null; then
+                    kill -9 "$pid" 2>/dev/null && echo -e "${YELLOW}  Force killed ${pid}${NC}"
+                fi
+            else
+                if [ "$EUID" -ne 0 ]; then
+                    echo -e "${RED}✗ Failed to kill process ${pid} (try with sudo)${NC}"
+                else
+                    echo -e "${RED}✗ Failed to kill process ${pid}${NC}"
+                fi
+                ((failed_count++))
+            fi
+        fi
+    done
+    
+    echo -e "\n${GREEN}Killed ${killed_count} process(es)${NC}"
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}Failed to kill ${failed_count} process(es)${NC}"
+        return 1
+    fi
+}
+
+# Function to list all ports in use
+list_ports() {
+    echo -e "${BLUE}Listing ports currently in use...${NC}\n"
+    
+    # Try different commands based on availability
+    if command -v ss &> /dev/null; then
+        echo -e "${YELLOW}TCP Ports:${NC}"
+        ss -tlnp 2>/dev/null | head -n 1
+        ss -tlnp 2>/dev/null | grep -v "State" | awk '{print $4, $5, $6}' | column -t
+        
+        echo -e "\n${YELLOW}UDP Ports:${NC}"
+        ss -ulnp 2>/dev/null | head -n 1
+        ss -ulnp 2>/dev/null | grep -v "State" | awk '{print $4, $5}' | column -t
+        
+    elif command -v netstat &> /dev/null; then
+        echo -e "${YELLOW}TCP Ports:${NC}"
+        netstat -tlnp 2>/dev/null | head -n 2
+        netstat -tlnp 2>/dev/null | grep -v "Active\|Proto"
+        
+        echo -e "\n${YELLOW}UDP Ports:${NC}"
+        netstat -ulnp 2>/dev/null | head -n 2
+        netstat -ulnp 2>/dev/null | grep -v "Active\|Proto"
+        
+    elif command -v lsof &> /dev/null; then
+        echo -e "${YELLOW}All listening ports:${NC}"
+        lsof -i -P -n | grep LISTEN
+        
+    else
+        echo -e "${RED}Error: No suitable command found (ss, netstat, or lsof required)${NC}"
+        return 1
+    fi
+    
+    echo -e "\n${YELLOW}Tip: Use '${SCRIPT_NAME} kill-port [port]' to kill processes on a specific port${NC}"
+}
+
+# Main function
+main() {
+    # Handle no arguments - show banner and help
+    if [ $# -eq 0 ]; then
+        show_banner
+        echo -e "${YELLOW}Type '${SCRIPT_NAME} help' for usage information${NC}\n"
+        exit 0
+    fi
+    
+    # Parse command
+    local command="$1"
+    shift
+    
+    case "$command" in
+        help|-h|--help)
+            show_help
+            ;;
+        version|-v|--version)
+            show_version
+            ;;
+        init)
+            init_project "$@"
+            ;;
+        status)
+            show_status
+            ;;
+        run)
+            run_task "$@"
+            ;;
+        config)
+            show_config
+            ;;
+        list)
+            list_items
+            ;;
+        kill-port)
+            kill_port "$@"
+            ;;
+        list-ports)
+            list_ports
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown command '${command}'${NC}"
+            echo -e "Run '${SCRIPT_NAME} help' for usage information"
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function with all arguments
+main "$@"

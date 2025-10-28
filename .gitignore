@@ -1,0 +1,26 @@
+# Banju CLI Tool - .gitignore
+
+# Backup files
+*.bak
+*~
+.*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Test directories
+test-project/
+tmp/
+temp/
+
+# Log files
+*.log
+
+# Cache
+.cache/
