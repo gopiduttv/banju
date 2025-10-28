@@ -30,8 +30,8 @@ show_banner() {
 ║                                                                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 EOF
-    echo -e "${GREEN}                    🚀 Version ${VERSION} 🚀${NC}"
-    echo -e "${BLUE}           The Ultimate Developer's CLI Toolkit${NC}\n"
+    echo -e "${GREEN}                         🚀 Version ${VERSION} 🚀${NC}"
+    echo -e "${BLUE}                 The Ultimate Developer's CLI Toolkit${NC}\n"
 }
 
 # Function to display help
