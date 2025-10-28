@@ -50,6 +50,7 @@ show_help() {
     echo -e "    list                List available items"
     echo -e "    kill-port [port]    Kill all processes running on specified port"
     echo -e "    list-ports          List all ports currently in use"
+    echo -e "    apt install -f [file]  Install a package file (auto-detects format)"
     echo -e ""
     echo -e "${YELLOW}OPTIONS:${NC}"
     echo -e "    -h, --help          Show help message"
@@ -63,6 +64,7 @@ show_help() {
     echo -e "    ${SCRIPT_NAME} list"
     echo -e "    ${SCRIPT_NAME} kill-port 3000"
     echo -e "    ${SCRIPT_NAME} list-ports"
+    echo -e "    ${SCRIPT_NAME} apt install -f package.deb"
     echo -e ""
     echo -e "For more information, visit: https://github.com/yourusername/banju"
 }
@@ -301,6 +303,180 @@ list_ports() {
     echo -e "\n${YELLOW}Tip: Use '${SCRIPT_NAME} kill-port [port]' to kill processes on a specific port${NC}"
 }
 
+# Function to install packages
+apt_install() {
+    local force_install=false
+    local file_path=""
+    
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -f)
+                force_install=true
+                shift
+                ;;
+            *)
+                file_path="$1"
+                shift
+                ;;
+        esac
+    done
+    
+    if [ -z "$file_path" ]; then
+        echo -e "${RED}Error: No file specified${NC}"
+        echo -e "Usage: ${SCRIPT_NAME} apt install -f [file]"
+        return 1
+    fi
+    
+    # Check if file exists
+    if [ ! -f "$file_path" ]; then
+        echo -e "${RED}Error: File '${file_path}' not found${NC}"
+        return 1
+    fi
+    
+    # Get file extension
+    local extension="${file_path##*.}"
+    local filename=$(basename "$file_path")
+    
+    echo -e "${BLUE}Analyzing package: ${filename}${NC}"
+    echo -e "${BLUE}Package type: ${extension}${NC}\n"
+    
+    # Determine installation method based on extension
+    case "${extension,,}" in
+        deb)
+            echo -e "${YELLOW}Installing .deb package using dpkg...${NC}"
+            
+            # Check if dpkg is available
+            if ! command -v dpkg &> /dev/null; then
+                echo -e "${RED}Error: dpkg is not installed on this system${NC}"
+                echo -e "${YELLOW}This command requires dpkg for .deb package installation${NC}"
+                return 1
+            fi
+            
+            # Install the package
+            if [ "$EUID" -ne 0 ]; then
+                echo -e "${YELLOW}Note: Root privileges required for package installation${NC}"
+                echo -e "${BLUE}Running: sudo dpkg -i \"${file_path}\"${NC}\n"
+                
+                if sudo dpkg -i "$file_path"; then
+                    echo -e "\n${GREEN}✓ Package installed successfully${NC}"
+                    
+                    # Fix dependencies if needed
+                    if [ "$force_install" = true ]; then
+                        echo -e "${YELLOW}Fixing dependencies...${NC}"
+                        sudo apt-get install -f -y
+                    else
+                        echo -e "${YELLOW}Tip: If there are dependency issues, run:${NC}"
+                        echo -e "  sudo apt-get install -f"
+                    fi
+                else
+                    echo -e "\n${RED}✗ Installation failed${NC}"
+                    
+                    if [ "$force_install" = true ]; then
+                        echo -e "${YELLOW}Attempting to fix dependencies...${NC}"
+                        sudo apt-get install -f -y
+                    fi
+                    return 1
+                fi
+            else
+                echo -e "${BLUE}Running: dpkg -i \"${file_path}\"${NC}\n"
+                
+                if dpkg -i "$file_path"; then
+                    echo -e "\n${GREEN}✓ Package installed successfully${NC}"
+                    
+                    # Fix dependencies if needed
+                    if [ "$force_install" = true ]; then
+                        echo -e "${YELLOW}Fixing dependencies...${NC}"
+                        apt-get install -f -y
+                    fi
+                else
+                    echo -e "\n${RED}✗ Installation failed${NC}"
+                    
+                    if [ "$force_install" = true ]; then
+                        echo -e "${YELLOW}Attempting to fix dependencies...${NC}"
+                        apt-get install -f -y
+                    fi
+                    return 1
+                fi
+            fi
+            ;;
+        rpm)
+            echo -e "${YELLOW}Installing .rpm package...${NC}"
+            
+            # Check for rpm-based package managers
+            if command -v dnf &> /dev/null; then
+                echo -e "${BLUE}Using dnf package manager${NC}"
+                if [ "$EUID" -ne 0 ]; then
+                    sudo dnf install -y "$file_path"
+                else
+                    dnf install -y "$file_path"
+                fi
+            elif command -v yum &> /dev/null; then
+                echo -e "${BLUE}Using yum package manager${NC}"
+                if [ "$EUID" -ne 0 ]; then
+                    sudo yum install -y "$file_path"
+                else
+                    yum install -y "$file_path"
+                fi
+            elif command -v rpm &> /dev/null; then
+                echo -e "${BLUE}Using rpm package manager${NC}"
+                if [ "$EUID" -ne 0 ]; then
+                    sudo rpm -i "$file_path"
+                else
+                    rpm -i "$file_path"
+                fi
+            else
+                echo -e "${RED}Error: No RPM package manager found${NC}"
+                echo -e "${YELLOW}Please install dnf, yum, or rpm${NC}"
+                return 1
+            fi
+            
+            echo -e "${GREEN}✓ Package installation completed${NC}"
+            ;;
+        pkg.tar.zst|pkg.tar.xz)
+            echo -e "${YELLOW}Installing Arch Linux package...${NC}"
+            
+            if ! command -v pacman &> /dev/null; then
+                echo -e "${RED}Error: pacman is not installed on this system${NC}"
+                return 1
+            fi
+            
+            if [ "$EUID" -ne 0 ]; then
+                sudo pacman -U "$file_path"
+            else
+                pacman -U "$file_path"
+            fi
+            
+            echo -e "${GREEN}✓ Package installation completed${NC}"
+            ;;
+        apk)
+            echo -e "${YELLOW}Installing Alpine package...${NC}"
+            
+            if ! command -v apk &> /dev/null; then
+                echo -e "${RED}Error: apk is not installed on this system${NC}"
+                return 1
+            fi
+            
+            if [ "$EUID" -ne 0 ]; then
+                sudo apk add --allow-untrusted "$file_path"
+            else
+                apk add --allow-untrusted "$file_path"
+            fi
+            
+            echo -e "${GREEN}✓ Package installation completed${NC}"
+            ;;
+        *)
+            echo -e "${RED}Error: Unsupported package format '${extension}'${NC}"
+            echo -e "${YELLOW}Supported formats:${NC}"
+            echo -e "  • .deb (Debian/Ubuntu) - uses dpkg"
+            echo -e "  • .rpm (RedHat/Fedora/CentOS) - uses dnf/yum/rpm"
+            echo -e "  • .pkg.tar.zst/.pkg.tar.xz (Arch Linux) - uses pacman"
+            echo -e "  • .apk (Alpine Linux) - uses apk"
+            return 1
+            ;;
+    esac
+}
+
 # Main function
 main() {
     # Handle no arguments - show banner and help
@@ -341,6 +517,22 @@ main() {
             ;;
         list-ports)
             list_ports
+            ;;
+        apt)
+            # Handle apt subcommands
+            local subcommand="${1:-}"
+            shift || true
+            
+            case "$subcommand" in
+                install)
+                    apt_install "$@"
+                    ;;
+                *)
+                    echo -e "${RED}Error: Unknown apt subcommand '${subcommand}'${NC}"
+                    echo -e "Usage: ${SCRIPT_NAME} apt install -f [file]"
+                    exit 1
+                    ;;
+            esac
             ;;
         *)
             echo -e "${RED}Error: Unknown command '${command}'${NC}"

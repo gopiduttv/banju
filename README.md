@@ -9,6 +9,7 @@ A versatile command-line tool built with BASH for project management and automat
 - ⚙️ Run common tasks (build, test, clean)
 - 🔪 Kill processes running on specific ports
 - 🔍 List all ports currently in use
+- 📦 Install packages with auto-detection of format (.deb, .rpm, etc.)
 - 🎨 Colorful and user-friendly output
 - 📝 Easy to extend and customize
 
@@ -80,6 +81,9 @@ banju config
 
 # List available items
 banju list
+
+# Install a package file (auto-detects format)
+banju apt install -f package.deb
 ```
 
 ### Examples
@@ -102,7 +106,42 @@ banju kill-port 3000
 
 # Kill processes on port 8080
 banju kill-port 8080
+
+# Install a .deb package
+banju apt install -f myapp.deb
+
+# Install an .rpm package
+banju apt install -f myapp.rpm
 ```
+
+### Package Installation
+
+The `apt install` command automatically detects package formats and uses the appropriate package manager:
+
+```bash
+# Install a .deb package (uses dpkg)
+banju apt install -f package.deb
+
+# Install without auto-fixing dependencies
+banju apt install package.deb
+
+# Install an .rpm package (uses dnf/yum/rpm)
+banju apt install -f package.rpm
+
+# Install an Arch Linux package (uses pacman)
+banju apt install -f package.pkg.tar.zst
+
+# Install an Alpine package (uses apk)
+banju apt install -f package.apk
+```
+
+**Features:**
+- Auto-detects package format from file extension
+- Supports .deb, .rpm, .pkg.tar.zst, .pkg.tar.xz, and .apk formats
+- Uses appropriate package manager for each format
+- Optional `-f` flag to auto-fix dependencies after installation
+- Provides clear error messages for unsupported formats
+- Handles permissions automatically (uses sudo when needed)
 
 ### Port Management
 
@@ -177,6 +216,11 @@ banju/
 - Linux, macOS, or WSL on Windows
 - Standard Unix utilities (mkdir, touch, date, etc.)
 - For port management: `lsof`, `ss`, `netstat`, or `fuser` (at least one)
+- For package installation:
+  - `dpkg` for .deb packages (Debian/Ubuntu)
+  - `dnf`, `yum`, or `rpm` for .rpm packages (RedHat/Fedora/CentOS)
+  - `pacman` for Arch Linux packages
+  - `apk` for Alpine Linux packages
 
 ## License
 
