@@ -50,6 +50,7 @@ show_help() {
     echo -e "    list                List available items"
     echo -e "    kill-port [port]    Kill all processes running on specified port"
     echo -e "    list-ports          List all ports currently in use"
+    echo -e "    top [pid|name]      Show process information using top command (or normal top if no args)"
     echo -e ""
     echo -e "${YELLOW}OPTIONS:${NC}"
     echo -e "    -h, --help          Show help message"
@@ -63,6 +64,9 @@ show_help() {
     echo -e "    ${SCRIPT_NAME} list"
     echo -e "    ${SCRIPT_NAME} kill-port 3000"
     echo -e "    ${SCRIPT_NAME} list-ports"
+    echo -e "    ${SCRIPT_NAME} top"
+    echo -e "    ${SCRIPT_NAME} top 1234"
+    echo -e "    ${SCRIPT_NAME} top nginx"
     echo -e ""
     echo -e "For more information, visit: https://github.com/yourusername/banju"
 }
@@ -301,6 +305,69 @@ list_ports() {
     echo -e "\n${YELLOW}Tip: Use '${SCRIPT_NAME} kill-port [port]' to kill processes on a specific port${NC}"
 }
 
+# Function to show process information using top
+show_top() {
+    local input="${1:-}"
+    
+    if [ -z "$input" ]; then
+        echo -e "${YELLOW}Press 'q' to quit top${NC}\n"
+        top
+        return 0
+    fi
+    
+    # Check if input is a number (PID)
+    if [[ "$input" =~ ^[0-9]+$ ]]; then
+        # Input is a PID
+        echo -e "${BLUE}Showing process information for PID: ${input}${NC}"
+        
+        # Check if the process exists
+        if ! ps -p "$input" &> /dev/null; then
+            echo -e "${RED}Error: Process with PID '${input}' not found${NC}"
+            return 1
+        fi
+        
+        # Show process info first
+        echo -e "${YELLOW}Process details:${NC}"
+        ps -p "$input" -o pid,ppid,user,comm,pcpu,pmem,etime,cmd
+        
+        echo -e "\n${YELLOW}Running top for PID ${input}...${NC}"
+        echo -e "${BLUE}Press 'q' to quit top${NC}\n"
+        
+        # Run top for the specific PID
+        top -p "$input"
+        
+    else
+        # Input is a process name
+        echo -e "${BLUE}Searching for processes matching: ${input}${NC}"
+        
+        # Find PIDs matching the process name
+        local pids=($(pgrep -f "$input" 2>/dev/null))
+        
+        if [ ${#pids[@]} -eq 0 ]; then
+            echo -e "${RED}Error: No processes found matching '${input}'${NC}"
+            echo -e "${YELLOW}Tip: Try using a more specific process name or check with 'ps aux | grep ${input}'${NC}"
+            return 1
+        fi
+        
+        echo -e "${YELLOW}Found ${#pids[@]} process(es) matching '${input}':${NC}"
+        
+        # Show process info for all matching processes
+        ps -p "${pids[*]}" -o pid,ppid,user,comm,pcpu,pmem,etime,cmd
+        
+        if [ ${#pids[@]} -eq 1 ]; then
+            echo -e "\n${YELLOW}Running top for PID ${pids[0]}...${NC}"
+            echo -e "${BLUE}Press 'q' to quit top${NC}\n"
+            top -p "${pids[0]}"
+        else
+            echo -e "\n${YELLOW}Multiple processes found. Running top for all matching PIDs...${NC}"
+            echo -e "${BLUE}Press 'q' to quit top${NC}\n"
+            # Convert space-separated PIDs to comma-separated for top command
+            local pids_comma=$(printf "%s," "${pids[@]}" | sed 's/,$//')
+            top -p "$pids_comma"
+        fi
+    fi
+}
+
 # Main function
 main() {
     # Handle no arguments - show banner and help
@@ -341,6 +408,9 @@ main() {
             ;;
         list-ports)
             list_ports
+            ;;
+        top)
+            show_top "$@"
             ;;
         *)
             echo -e "${RED}Error: Unknown command '${command}'${NC}"
