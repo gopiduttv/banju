@@ -37,39 +37,34 @@ EOF
 # Function to display help
 show_help() {
     show_banner
-    cat << EOF
-${YELLOW}USAGE:${NC}
-    ${SCRIPT_NAME} [COMMAND] [OPTIONS]
-
-${YELLOW}USAGE:${NC}
-    ${SCRIPT_NAME} [COMMAND] [OPTIONS]
-
-${YELLOW}COMMANDS:${NC}
-    help                Show this help message
-    version             Show version information
-    init [name]         Initialize a new project
-    status              Show current status
-    run [task]          Run a specific task
-    config              Show configuration
-    list                List available items
-    kill-port [port]    Kill all processes running on specified port
-    list-ports          List all ports currently in use
-
-${YELLOW}OPTIONS:${NC}
-    -h, --help          Show help message
-    -v, --version       Show version
-    -V, --verbose       Enable verbose output
-
-${YELLOW}EXAMPLES:${NC}
-    ${SCRIPT_NAME} init my-project
-    ${SCRIPT_NAME} status
-    ${SCRIPT_NAME} run build
-    ${SCRIPT_NAME} list
-    ${SCRIPT_NAME} kill-port 3000
-    ${SCRIPT_NAME} list-ports
-
-For more information, visit: https://github.com/yourusername/banju
-EOF
+    echo -e "${YELLOW}USAGE:${NC}"
+    echo -e "    ${SCRIPT_NAME} [COMMAND] [OPTIONS]"
+    echo -e ""
+    echo -e "${YELLOW}COMMANDS:${NC}"
+    echo -e "    help                Show this help message"
+    echo -e "    version             Show version information"
+    echo -e "    init [name]         Initialize a new project"
+    echo -e "    status              Show current status"
+    echo -e "    run [task]          Run a specific task"
+    echo -e "    config              Show configuration"
+    echo -e "    list                List available items"
+    echo -e "    kill-port [port]    Kill all processes running on specified port"
+    echo -e "    list-ports          List all ports currently in use"
+    echo -e ""
+    echo -e "${YELLOW}OPTIONS:${NC}"
+    echo -e "    -h, --help          Show help message"
+    echo -e "    -v, --version       Show version"
+    echo -e "    -V, --verbose       Enable verbose output"
+    echo -e ""
+    echo -e "${YELLOW}EXAMPLES:${NC}"
+    echo -e "    ${SCRIPT_NAME} init my-project"
+    echo -e "    ${SCRIPT_NAME} status"
+    echo -e "    ${SCRIPT_NAME} run build"
+    echo -e "    ${SCRIPT_NAME} list"
+    echo -e "    ${SCRIPT_NAME} kill-port 3000"
+    echo -e "    ${SCRIPT_NAME} list-ports"
+    echo -e ""
+    echo -e "For more information, visit: https://github.com/yourusername/banju"
 }
 
 # Function to display version
