@@ -14,39 +14,44 @@ A versatile command-line tool built with BASH for project management and automat
 
 ## Installation
 
-### Quick Install (Local User)
+### One-Command Install
 
-1. Clone or download this repository
-2. Make the script executable:
+```bash
+curl -fsSL https://raw.githubusercontent.com/yourusername/banju/main/install.sh | bash
+```
+
+Or clone and install:
+
+```bash
+git clone https://github.com/yourusername/banju.git
+cd banju
+./install.sh
+```
+
+That's it! The installer will:
+- ✅ Copy `banju` to `~/.local/bin/`
+- ✅ Make it executable
+- ✅ Add to your PATH automatically
+- ✅ Detect your shell (bash/zsh/fish) and configure it
+
+### Manual Installation (if preferred)
+
+1. Make the script executable:
    ```bash
    chmod +x banju
    ```
-3. Add to your PATH (choose one):
-   
-   **Option A: Copy to local bin directory**
+
+2. Copy to your local bin:
    ```bash
    mkdir -p ~/.local/bin
    cp banju ~/.local/bin/
    ```
-   
-   **Option B: Create a symlink**
-   ```bash
-   mkdir -p ~/.local/bin
-   ln -s "$(pwd)/banju" ~/.local/bin/banju
-   ```
 
-4. Ensure `~/.local/bin` is in your PATH:
+3. Add to PATH (if not already):
    ```bash
    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
    source ~/.bashrc
    ```
-
-### System-wide Install (Requires sudo)
-
-```bash
-sudo cp banju /usr/local/bin/
-sudo chmod +x /usr/local/bin/banju
-```
 
 ## Usage
 
